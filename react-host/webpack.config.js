@@ -1,11 +1,10 @@
 const HtmlWebPackPlugin = require("html-webpack-plugin");
 const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin");
-const Dotenv = require('dotenv-webpack');
-
+const Dotenv = require("dotenv-webpack");
 const deps = require("./package.json").dependencies;
 module.exports = (_, argv) => ({
   output: {
-    publicPath: "http://localhost:4000/",
+    publicPath: "http://localhost:3001/",
   },
 
   resolve: {
@@ -13,7 +12,7 @@ module.exports = (_, argv) => ({
   },
 
   devServer: {
-    port: 4000,
+    port: 3001,
     historyApiFallback: true,
   },
 
@@ -42,21 +41,25 @@ module.exports = (_, argv) => ({
 
   plugins: [
     new ModuleFederationPlugin({
-      name: "host",
+      name: "react_host",
       filename: "remoteEntry.js",
-      remotes: { remote: 'remote@http://localhost:3000/remoteEntry.js'},
+      remotes: { remote: "remote@http://localhost:3000/remoteEntry.js" },
       exposes: {},
       shared: {
         ...deps,
-        "solid-js": {
+        react: {
           singleton: true,
-          requiredVersion: deps["solid-js"],
+          requiredVersion: deps.react,
+        },
+        "react-dom": {
+          singleton: true,
+          requiredVersion: deps["react-dom"],
         },
       },
     }),
     new HtmlWebPackPlugin({
       template: "./src/index.html",
     }),
-    new Dotenv()
+    new Dotenv(),
   ],
 });
